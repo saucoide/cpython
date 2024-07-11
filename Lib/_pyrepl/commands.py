@@ -435,9 +435,15 @@ class accept(FinishCommand):
 class help(Command):
     def do(self) -> None:
         import _sitebuiltins
+        import signal
 
-        with self.reader.suspend():
-            self.reader.msg = _sitebuiltins._Helper()()  # type: ignore[assignment, call-arg]
+        if self.reader.help_mode:
+            signal.raise_signal(signal.SIGINT)
+        else:
+            self.reader.help_mode = True
+            with self.reader.suspend():
+                self.reader.msg = _sitebuiltins._Helper()()  # type: ignore[assignment, call-arg]
+        self.reader.help_mode = False
 
 
 class invalid_key(Command):
